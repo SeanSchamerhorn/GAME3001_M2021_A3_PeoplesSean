@@ -28,8 +28,10 @@ void PlayScene::draw()
 void PlayScene::update()
 {
 	updateDisplayList();
-	/*m_mousePosition = EventManager::Instance().getMousePosition();
-	m_pEnemy->setTargetPosition(m_mousePosition);*/
+	m_mousePosition = EventManager::Instance().getMousePosition();
+	//m_pEnemy->setTargetPosition(m_mousePosition);
+
+	m_pPlayer->setTargetPosition(m_mousePosition);
 
 	m_CheckEnemyLOS(m_pPlayer);
 	m_CheckDetection(m_pPlayer);
@@ -118,6 +120,7 @@ void PlayScene::handleEvents()
 		{
 			m_pPlayer->setAnimationState(PLAYER_RUN_UP);
 			m_pPlayer->SetAccelY(-3.0);
+			m_pPlayer->setCurrentHeading(-90.0f);
 			//m_pPlayer->getTransform()->position.y = m_pPlayer->getTransform()->position.y - 2.0f;
 			m_playerFacingDown = false;
 			std::cout << "------------------------" << std::endl;
@@ -128,6 +131,7 @@ void PlayScene::handleEvents()
 		{
 			m_pPlayer->setAnimationState(PLAYER_RUN_DOWN);
 			m_pPlayer->SetAccelY(3.0);
+			m_pPlayer->setCurrentHeading(90.0f);
 			//m_pPlayer->getTransform()->position.y = m_pPlayer->getTransform()->position.y + 2.0f;
 			m_playerFacingDown = true;
 			std::cout << "------------------------" << std::endl;
@@ -141,7 +145,25 @@ void PlayScene::handleEvents()
 		Bullet* bill = new Bullet();
 		m_mousePosition = EventManager::Instance().getMousePosition();
 		//bill->getTransform()->position = m_mousePosition;
-		if (m_mousePosition.y > m_pPlayer->getTransform()->position.y)
+
+		if (m_pPlayer->getCurrentHeading() == -90.0f)
+		{
+			bill->setAnimationState(BULLET_UP);
+			bill->getTransform()->position = glm::vec2(m_pPlayer->getTransform()->position.x, m_pPlayer->getTransform()->position.y - 30.0f);
+			bill->SetAccelY(-10.0f);
+
+		
+		}
+		if (m_pPlayer->getCurrentHeading() == 90.0f)
+		{
+			bill->setAnimationState(BULLET_UP);
+			bill->getTransform()->position = glm::vec2(m_pPlayer->getTransform()->position.x, m_pPlayer->getTransform()->position.y + 30.0f);
+			bill->SetAccelY(10.0f);
+
+
+		}
+		
+	/*	if (m_mousePosition.y > m_pPlayer->getTransform()->position.y)
 		{
 			bill->setAnimationState(BULLET_DOWN);
 			bill->getTransform()->position = glm::vec2( m_pPlayer->getTransform()->position.x, m_pPlayer->getTransform()->position.y + 30.0f);
@@ -166,7 +188,7 @@ void PlayScene::handleEvents()
 			bill->getTransform()->position.x = m_pPlayer->getTransform()->position.x - 30.0f;
 			bill->SetAccelX(-2.0f);
 		}
-		
+		*/
 		addChild(bill);
 		m_pBullets.push_back(bill);
 		bill = nullptr;
@@ -208,14 +230,14 @@ void PlayScene::start()
 
 	//////Very Long way of feeding in all obstacles... Need a better way to do this
 	////All for groups of Impassable objects
-	/*for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		Obstacle* obs = new Obstacle();
 		obs->getTransform()->position = m_getTile(i + 1, 11)->getTransform()->position;
 		obs->setGridPosition(i + 1, 11);
 		m_Obstacles.push_back(obs);
 		addChild(obs);
-	}*/
+	}
 	//for (int i = 0; i < 5; i++)
 	//{
 	//	Obstacle* obs = new Obstacle();
@@ -473,7 +495,7 @@ void PlayScene::GUI_Function()
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("GAME3001 - M2021 - A3", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("GAME3001 - M2021 - A4", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
 	static bool gridVisible = true;
 	if (ImGui::Checkbox("Toggle Grid", &gridVisible))
@@ -483,15 +505,15 @@ void PlayScene::GUI_Function()
 	
 	// allow ship rotation
 	static int angle;
-	if (ImGui::SliderInt("Enemy Direction", &angle, -360, 360))
+	if (ImGui::SliderInt("Player Direction", &angle, -360, 360))
 	{
-		m_pEnemy->setCurrentHeading(angle);
+		m_pPlayer->setCurrentHeading(angle);
 
 		std::cout << "------------------------" << std::endl;
 		std::cout << decisionTree->MakeDecision() << std::endl;
 		std::cout << "------------------------\n" << std::endl;
-		std::cout << "Current Direction: (" << m_pEnemy->getCurrentDirection().x<< ", "<<m_pEnemy->getCurrentDirection().y <<")"<<std::endl;
-		std::cout << "Current Heading: " << m_pEnemy->getCurrentHeading() << std::endl;
+		//std::cout << "Current Direction: (" << m_pEnemy->getCurrentDirection().x<< ", "<<m_pEnemy->getCurrentDirection().y <<")"<<std::endl;
+		//std::cout << "Current Heading: " << m_pEnemy->getCurrentHeading() << std::endl;
 	}
 
 	ImGui::Separator();

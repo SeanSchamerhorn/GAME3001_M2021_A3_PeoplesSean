@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "TextureManager.h"
+#include "Util.h"
 
 Player::Player(): m_currentAnimationState(PLAYER_IDLE_DOWN)
 {
@@ -34,6 +35,14 @@ Player::Player(): m_currentAnimationState(PLAYER_IDLE_DOWN)
 	m_accelX = m_accelY = m_velX = m_velY = 0.0;
 	m_maxVelY = 10.0;
 	m_maxVelX = 10.0;
+
+	m_turnRate = 3.0f;
+
+
+	setCurrentHeading(90.0f);// current facing angle
+	setCurrentDirection(glm::vec2(0.0f, 1.0f)); // facing down
+	
+	setLOSDistance(100.0f);
 	
 }
 
@@ -45,6 +54,9 @@ void Player::draw()
 	// alias for x and y
 	const auto x = getTransform()->position.x;
 	const auto y = getTransform()->position.y;
+
+	// draw LOS
+	Util::DrawLine(getTransform()->position, getTransform()->position + getCurrentDirection() * getLOSDistance(), getLOSColour());
 
 	// draw the player according to animation state
 	switch(m_currentAnimationState)
@@ -77,7 +89,7 @@ void Player::draw()
 		break;
 	}
 
-	m_CollisionRadius->draw();
+	//m_CollisionRadius->draw();
 	//m_healthBar->draw();
 }
 
@@ -111,6 +123,16 @@ void Player::StopY() { m_velY = 0.0; }
 void Player::SetAccelX(double a) { m_accelX = a; }
 void Player::SetAccelY(double a) { m_accelY = a; }
 
+float Player::getTurnRate() const
+{
+	return m_turnRate;
+}
+
+void Player::setTurnRate(float angle)
+{
+	m_turnRate = angle;
+}
+
 double Player::GetVelX() { return m_velX; }
 double Player::GetVelY() { return m_velY; }
 
@@ -121,6 +143,26 @@ void Player::SetY(float y) { this->getTransform()->position.y = y; }
 void Player::setAnimationState(const PlayerAnimationState new_state)
 {
 	m_currentAnimationState = new_state;
+}
+
+void Player::LookWhereIamGoing(glm::vec2 target_direction)
+{
+	std::cout << "target direction: " << getCurrentHeading() << std::endl;
+	const auto target_rotation = Util::signedAngle(getCurrentDirection(), target_direction);
+
+	const auto turn_sensitivity = 5.0f;
+
+	if (abs(target_rotation) > turn_sensitivity)
+	{
+		if (target_rotation > 0.0f)
+		{
+			setCurrentHeading(getCurrentHeading() + getTurnRate());
+		}
+		else if (target_rotation < 0.0f)
+		{
+			setCurrentHeading(getCurrentHeading() - getTurnRate());
+		}
+	}
 }
 
 void Player::m_buildAnimations()

@@ -23,14 +23,20 @@ public:
 	void SetAccelX(double a);
 	void SetAccelY(double a);
 
+	//getters
+	float getTurnRate() const;
+	
 	// setters
 	double GetVelX();
 	double GetVelY();
 	void SetX(float y);
 	void SetY(float y);
+	void setTurnRate(float angle);
 	
 	void setAnimationState(PlayerAnimationState new_state);
 
+	void LookWhereIamGoing(glm::vec2 target_direction);
+	
 	Radius* m_CollisionRadius;
 	HealthBar* m_healthBar;
 
@@ -43,6 +49,8 @@ private:
 		m_maxVelX,
 		m_velY,
 		m_maxVelY;
+
+	float m_turnRate;
 
 	float m_health;
 	

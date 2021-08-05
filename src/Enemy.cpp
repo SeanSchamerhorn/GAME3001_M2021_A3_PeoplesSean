@@ -32,9 +32,9 @@ Enemy::Enemy() : m_maxSpeed(10.0f), m_currentAnimationState(ENEMY_WALK_RIGHT)
 	m_turnRate = 3.0f;
 	m_accelerationRate = 5.0f;
 
-	setLOSDistance(200.0f);
+	setLOSDistance(100.0f);
 
-	setDetectionRadius(250.0f);
+	setDetectionRadius(225.0f);
 	
 }
 
@@ -95,7 +95,7 @@ void Enemy::update()
 {
 	m_move();
 	Arrival();
-	
+
 	//m_checkBounds();
 }
 
@@ -201,16 +201,14 @@ void Enemy::Seek()
 
 void Enemy::Arrival()
 {
-	//Seek();
+	Seek();
 	auto target_distance = Util::distance(getTransform()->position, getTargetPosition());
 	auto target_direction = getTransform()->position - getTargetPosition();
 	Util::normalize(target_direction);
-	//std::cout << "Enemy Pos: (" << getTransform()->position.x << ", " << getTransform()->position.y << ")" << std::endl;
-	//std::cout << "Target Pos: (" << getTargetPosition().x << ", " << getTargetPosition().y << ")" << std::endl;
 
 	if (target_distance <= 200.0f)
 	{	
-		if (target_distance < 1)
+		if (target_distance < 5.0f)
 		{
 			setMaxSpeed(0.0f);
 			setAnimationState(ENEMY_IDLE_DOWN);
